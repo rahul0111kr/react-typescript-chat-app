@@ -1,28 +1,44 @@
 import React, { useState } from "react";
 import Input from "./Input";
 import Button from "./Button";
+import { BE_signIn, BE_signUp } from "../Backend/Queries";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../Redux/store";
 
 export default function Login() {
   const [login, setlogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [confirmPassword, setconfirmPassword] = useState("");
+  const [signUPLoading, setsignUPLoading] = useState(false);
+  const [signInLoading, setSignInLoading] = useState(false);
+  const goTo = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleRegister = () => {
     const data = {
       email,
       password,
-      confirm,
+      confirmPassword,
+      goTo,
     };
-    console.log(data);
+    // console.log(data);
+    BE_signUp(data, setsignUPLoading, reset, goTo, dispatch);
   };
 
+  const reset = () => {
+    setEmail("");
+    setPassword("");
+    setconfirmPassword("");
+  };
   const handleLogin = () => {
     const data = {
       email,
       password,
     };
-    console.log(data);
+    // console.log(data);
+    BE_signIn(data, setSignInLoading, reset, goTo, dispatch);
   };
 
   return (
@@ -47,13 +63,18 @@ export default function Login() {
           <Input
             name="Confirm Password"
             type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
+            value={confirmPassword}
+            onChange={(e) => setconfirmPassword(e.target.value)}
           />
         )}
         {login ? (
           <>
-            <Button text="Login" secondary onClick={handleLogin} />
+            <Button
+              text="Login"
+              secondary
+              onClick={handleLogin}
+              loading={signInLoading}
+            />
             <Button
               onClick={() => setlogin(false)}
               text="Register"
@@ -62,7 +83,11 @@ export default function Login() {
           </>
         ) : (
           <>
-            <Button text="Register" secondary onClick={handleRegister} />
+            <Button
+              text="Register"
+              onClick={handleRegister}
+              loading={signUPLoading}
+            />
             <Button onClick={() => setlogin(true)} text="Login" secondary />
           </>
         )}
